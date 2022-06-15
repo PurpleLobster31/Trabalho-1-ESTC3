@@ -26,6 +26,10 @@ def loadProjectPickle():
             return pickle.load(handle)
 #endregion
 
+#region Algoritmos de Ordenação
+
+#endregion
+
 def process_project():
     tabelaProjetos = loadProjectPickle()
     os.system('cls || clear')
@@ -118,10 +122,35 @@ def process_project():
 
     elif option == 3: #em andamento
         pass
+        
     elif option == 4: #atrasados
         pass
     elif option == 5: #bonificados
-        pass
+        preSetFuncionariosResponsaveis = []
+        nomeFuncionariosResponsaveis = []
+        tabelaProjetos = loadProjectPickle()
+        tabelaFuncionarios = loadWorkerPickle()
+        
+        for key in tabelaProjetos:
+            if tabelaProjetos[key].finalizado == False:
+                preSetFuncionariosResponsaveis.append(tabelaProjetos[key].funcionarioResponsavel)
+        
+        setFuncionariosResponsaveis = set(preSetFuncionariosResponsaveis)
+        
+        for numFuncionalResponsaveis in setFuncionariosResponsaveis:
+            nomeFuncionariosResponsaveis.append(tabelaFuncionarios[numFuncionalResponsaveis].nome)
+        
+        #algoritmo ordenação
+
+        os.system('cls || clear')
+        print("Funcionarios responsaveis por projetos: ")
+        for nome in nomeFuncionariosResponsaveis:
+            print(nome)
+        
+        print('Aperte qualquer tecla para voltar ao menu.')
+        input()
+
+        
     elif option == 6: #remover
         os.system('cls || clear')
         nomeProjeto = input('Digite o nome do projeto que deseja apagar: ').upper()
