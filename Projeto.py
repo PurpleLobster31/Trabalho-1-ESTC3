@@ -65,4 +65,12 @@ class Projeto:
     def funcionarioResponsavel(self, funcionarioResponsavel):
         self._funcionarioResponsavel = funcionarioResponsavel
 
+    @property
+    def atraso(self):
+        return self._atraso
+    
+    @atraso.setter
+    def atraso(self, atraso):
+        self._atraso = atraso
+
     

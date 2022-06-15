@@ -6,6 +6,7 @@ from Funcionario import Funcionario
 from Projeto import Projeto
 import pickle
 import datetime
+from dateutil.relativedelta import relativedelta
 #endregion
 
 #region PickleList
@@ -27,7 +28,74 @@ def loadProjectPickle():
 #endregion
 
 #region Algoritmos de Ordenação
+def insertionSortBonificados(lista):
+    if len(lista) == 1:
+        return lista
+    
+    for i in range(1, len(lista)):
+        a = lista[i]
+        j = i - 1
+	
+    while j>=0 and a.salario > lista[j].salario:
+        lista[j+1] = lista[j]
+        j-=1
 
+    lista[j+1] = a
+
+    return lista
+
+def insertionSortNomes(lista):
+    if len(lista) == 1:
+        return lista
+    
+    for i in range(1, len(lista)):
+        a = lista[i]
+        j = i - 1
+	
+    while j>=0 and a < lista[j]:
+        lista[j+1] = lista[j]
+        j-=1
+
+    lista[j+1] = a
+
+    return lista
+
+def insertionSortAtraso(lista):
+    if len(lista) == 1:
+        return lista
+    
+    for i in range(1, len(lista)):
+        a = lista[i]
+        j = i - 1
+	
+    while j>=0 and a.atraso > lista[j].atraso:
+        lista[j+1] = lista[j]
+        j-=1
+
+    lista[j+1] = a
+
+    return lista
+
+def partition(lista, esquerda, direita):
+    pivot = lista[direita]
+    i = esquerda - 1
+
+    for j in range(esquerda, direita):
+        if lista[j].valorEstimado <= pivot.valorEstimado:
+            i = i + 1
+            (lista[i], lista[j]) = (lista[j], lista[i])
+
+    (lista[i + 1], lista[direita]) = (lista[direita], lista[i + 1])
+
+    return i + 1
+
+def quickSort(lista, esquerda, direita):
+    if esquerda < direita:
+        pi = partition(lista, esquerda, direita)
+
+        quickSort(lista, esquerda, pi - 1)
+
+        quickSort(lista, pi + 1, direita)
 #endregion
 
 def process_project():
@@ -121,10 +189,61 @@ def process_project():
                         escolha = input()
 
     elif option == 3: #em andamento
-        pass
+        os.system('cls || clear')
+        tabelaProjetos = loadProjectPickle()
+        preSortProjetosEmAndamento = []
         
+        for nome in tabelaProjetos:
+            if tabelaProjetos[nome].valorEstimado > 500000 and tabelaProjetos[nome].finalizado == False:
+                preSortProjetosEmAndamento.append(tabelaProjetos[nome])
+        
+        if len(preSortProjetosEmAndamento) == 0:
+            print('Nao ha projetos em aberto com valor estimado maior que 500000.00R$.')
+        
+        else:
+            print('Projetos em andamento com valor estimado maior que 500000.00 R$: ')
+            quickSort(preSortProjetosEmAndamento, 0, len(preSortProjetosEmAndamento) - 1)
+            for proj in preSortProjetosEmAndamento:
+                print('Nome do projeto: {} - Valor estimado: {:.2f} R$'.format(proj.nome, proj.valorEstimado))
+        
+        print('Aperte qualquer tecla para voltar ao menu.')
+        input()
+            
     elif option == 4: #atrasados
-        pass
+        os.system('cls || clear')
+        dataAtual = datetime.date.today()
+        tabelaProjetos = loadProjectPickle()
+        preSortProjetosAtrasadosFinalizados = []
+        preSortProjetosAtrasadosNaoFinalizados = []
+        
+        for nome in tabelaProjetos:
+            dataEstimada = tabelaProjetos[nome].dataInicio + relativedelta(months=+tabelaProjetos[nome].tempoEstimado)
+            if (tabelaProjetos[nome].finalizado == True) and (dataEstimada < tabelaProjetos[nome].dataTermino):
+                tabelaProjetos[nome].atraso = (tabelaProjetos[nome].dataTermino - dataEstimada).days
+                preSortProjetosAtrasadosFinalizados.append(tabelaProjetos[nome])
+            elif (tabelaProjetos[nome].finalizado == False) and (dataEstimada < dataAtual):
+                tabelaProjetos[nome].atraso = (dataAtual - dataEstimada).days
+                preSortProjetosAtrasadosNaoFinalizados.append(tabelaProjetos[nome])
+        
+        if(len(preSortProjetosAtrasadosFinalizados) == 0):
+            print('Nao ha projetos finalizados atrasados.\n')
+        else: 
+            sortedProjetosAtrasadosFinalizados = insertionSortAtraso(preSortProjetosAtrasadosFinalizados)
+            print('Projetos finalizados atrasados: ')
+            for proj in sortedProjetosAtrasadosFinalizados:
+                print('Nome do projeto: {} - Tempo de atraso: {:d} dias.'.format(proj.nome, proj.atraso))
+        
+        if(len(preSortProjetosAtrasadosNaoFinalizados) == 0):
+            print('Nao ha projetos nao finalizados atrasados.\n')
+        else: 
+            sortedProjetosAtrasadosNaoFinalizados = insertionSortAtraso(preSortProjetosAtrasadosNaoFinalizados)
+            print('Projetos nao finalizados atrasados: ')
+            for proj in sortedProjetosAtrasadosNaoFinalizados:
+                print('Nome do projeto: {} - Tempo de atraso: {:d} dias.'.format(proj.nome, proj.atraso))
+            
+        print('Aperte qualquer tecla para continuar.')
+        input()
+
     elif option == 5: #bonificados
         preSetFuncionariosResponsaveis = []
         nomeFuncionariosResponsaveis = []
@@ -135,22 +254,25 @@ def process_project():
             if tabelaProjetos[key].finalizado == False:
                 preSetFuncionariosResponsaveis.append(tabelaProjetos[key].funcionarioResponsavel)
         
-        setFuncionariosResponsaveis = set(preSetFuncionariosResponsaveis)
-        
-        for numFuncionalResponsaveis in setFuncionariosResponsaveis:
-            nomeFuncionariosResponsaveis.append(tabelaFuncionarios[numFuncionalResponsaveis].nome)
-        
-        #algoritmo ordenação
-
         os.system('cls || clear')
-        print("Funcionarios responsaveis por projetos: ")
-        for nome in nomeFuncionariosResponsaveis:
-            print(nome)
+
+        if(len(preSetFuncionariosResponsaveis) == 0):
+            print('Nao ha funcionarios trabalhando em projetos nao finalizados.') 
+        else:
+            setFuncionariosResponsaveis = set(preSetFuncionariosResponsaveis)
+        
+            for numFuncionalResponsaveis in setFuncionariosResponsaveis:
+                nomeFuncionariosResponsaveis.append(tabelaFuncionarios[numFuncionalResponsaveis].nome)
+            
+            nomeFuncionariosResponsaveis = insertionSortNomes(nomeFuncionariosResponsaveis)
+
+            print("Funcionarios responsaveis por projetos nao finalizados: ")
+            for nome in nomeFuncionariosResponsaveis:
+                print(nome)
         
         print('Aperte qualquer tecla para voltar ao menu.')
         input()
 
-        
     elif option == 6: #remover
         os.system('cls || clear')
         nomeProjeto = input('Digite o nome do projeto que deseja apagar: ').upper()
@@ -291,7 +413,7 @@ def process_worker():
 
             else:
                 os.system('cls || clear')
-                nome = input('Digite o nome do novo funcionario: ')
+                nome = input('Digite o nome do novo funcionario: ').upper()
                 os.system('cls || clear')
                 salario = float(input('Declare o valor do salario do novo funcionario: '))
                 os.system('cls || clear')
@@ -302,7 +424,24 @@ def process_worker():
         dumpWorkerPickle(tabelaFuncionarios)
 
     elif choice == 3: #ver bonificados
-        pass
+        os.system('cls || clear')
+        tabelaFuncionarios = loadWorkerPickle()
+        preSortFuncionariosBonificados = []
+        sortedFuncionariosBonificados = []
+        for numFunc in tabelaFuncionarios:
+            if tabelaFuncionarios[numFunc].salario < 10000.00:
+                preSortFuncionariosBonificados.append(tabelaFuncionarios[numFunc])
+        if len(preSortFuncionariosBonificados) == 0 :
+            print('Nao ha funcionarios com salario menor que 10000.00R$.')
+        else:
+            print('Funcionarios bonificados: ')
+            sortedFuncionariosBonificados = insertionSortBonificados(preSortFuncionariosBonificados)
+        
+            for func in sortedFuncionariosBonificados:
+                print('Nome: {} - Salario: {:.2f}R$'.format(func.nome, func.salario))
+        
+        print('Aperte qualquer tecla para voltar ao menu.')
+        input()
 
     elif choice == 4: #remover
         os.system('cls || clear')
@@ -328,7 +467,7 @@ def process_worker():
             escolha = input('Digite S ou N: ').upper()
             if escolha == 'S':
                 os.system('cls || clear')
-                funcionario.nome = input('Digite o novo nome: ')
+                funcionario.nome = input('Digite o novo nome: ').upper()
                 os.system('cls || clear')
             else:
                 os.system('cls || clear')
