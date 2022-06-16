@@ -234,14 +234,14 @@ def process_project():
                 print('Nome do projeto: {} - Tempo de atraso: {:d} dias.'.format(proj.nome, proj.atraso))
         
         if(len(preSortProjetosAtrasadosNaoFinalizados) == 0):
-            print('Nao ha projetos nao finalizados atrasados.\n')
+            print('\nNao ha projetos nao finalizados atrasados.')
         else: 
             sortedProjetosAtrasadosNaoFinalizados = insertionSortAtraso(preSortProjetosAtrasadosNaoFinalizados)
-            print('Projetos nao finalizados atrasados: ')
+            print('\nProjetos nao finalizados atrasados: ')
             for proj in sortedProjetosAtrasadosNaoFinalizados:
                 print('Nome do projeto: {} - Tempo de atraso: {:d} dias.'.format(proj.nome, proj.atraso))
             
-        print('Aperte qualquer tecla para continuar.')
+        print('\nAperte qualquer tecla para continuar.')
         input()
 
     elif option == 5: #bonificados
@@ -529,3 +529,4 @@ def menu():
             print('Pressione qualquer tecla para voltar ao menu...')
             option = 0
             input()
+
